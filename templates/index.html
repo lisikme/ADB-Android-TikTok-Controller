@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Android TikTok Controller by kelix.me</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900');
+        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
+        :root {
+            --bg-color: #000000;
+            --frame-bg: #111111;
+            --text-color: #FFFFFF;
+            --text-color-secondary: #A5A5A5;
+            --accent-color: #00ce68;
+            --pause-color: #6ad2ff;
+            --like-color: #fe2c55;
+            --pin-color: #face15;
+            --scroll-color: #00a6ed;
+            --vol-color: #7e59d0;
+            --restart-color: #f7ed80;
+            --error-color: #fe2c55;
+            --success-color: #00ce68;
+            --info-color: #FFFFFF;
+            --highlight: #222222;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Consolas', monospace;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            padding: 10px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+        }
+
+        .title {
+            font-family: 'Unbounded', 'Segoe UI emoji';
+            font-size: 25px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .subtitle {
+            font-family: 'Unbounded', 'Segoe UI emoji';
+            color: var(--text-color-secondary);
+            margin-bottom: 15px;
+        }
+
+        .separator {
+            height: 1px;
+            background-color: var(--highlight);
+            margin: 10px 0;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 2px;
+        }
+
+        .tab-btn {
+            font-family: 'Unbounded', 'Segoe UI emoji';
+            flex: 1;
+            padding: 5px 0;
+            background-color: var(--frame-bg);
+            border: none;
+            color: var(--text-color);
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .tab-btn:hover {
+            background-color: var(--highlight);
+        }
+
+        .tab-btn.active {
+            background-color: var(--highlight);
+            color: var(--accent-color);
+        }
+
+        .tab-content {
+            display: none;
+            flex-direction: column;
+            padding: 10px;
+            gap: 2px;
+            border: 1px solid var(--highlight);
+            border-radius: 0px;
+            margin-bottom: 15px;
+        }
+
+        .tab-content.active {
+            display: flex;
+        }
+
+        .section-title {
+            margin-bottom: 10px;
+            background: #111;
+            padding: 0px 10px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: var(--text-color);
+        }
+
+        .btn {
+            font-family: 'Unbounded', 'Segoe UI emoji';
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 2px;
+            border: none;
+            border-radius: 0px;
+            background-color: var(--frame-bg);
+            color: var(--text-color);
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            background-color: var(--highlight);
+        }
+
+        .btn-pause {
+            color: var(--pause-color);
+        }
+
+        .btn-like {
+            color: var(--like-color);
+        }
+
+        .btn-pin {
+            color: var(--pin-color);
+        }
+
+        .btn-restart{
+            color: var(--restart-color);
+        }
+
+        .btn-scroll {
+            color: var(--scroll-color);
+        }
+        .btn-vol_plus, .btn_vol_min{
+            color: var(--vol-color);
+        }
+
+        .btn-accent {
+            color: var(--accent-color);
+        }
+
+        .btn-row {
+            display: flex;
+            gap: 2px;
+        }
+
+        .btn-row .btn {
+            flex: 1;
+        }
+
+        .input-group {
+            display: flex;
+            align-items: center;
+            margin-bottom: 5px;
+            justify-content: center;
+        }
+
+        .input-group label {
+            width: 230px;
+        }
+
+        .input-group input {
+            font-family: 'Unbounded', 'Segoe UI emoji';
+            width: 70px;
+            padding: 5px;
+            background-color: var(--frame-bg);
+            border: 1px solid var(--highlight);
+            color: var(--text-color);
+            margin-right: 5px;
+        }
+
+        .hotkey-item {
+            display: flex;
+            margin-bottom: 5px;
+        }
+
+        .hotkey-key {
+            width: 80px;
+            font-weight: bold;
+        }
+
+        .hotkey-desc {
+            flex: 1;
+        }
+
+        .log-container {
+            border: 1px solid var(--highlight);
+            border-radius: 5px;
+            padding: 10px;
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+            background-color: var(--bg-color);
+        }
+
+        .log-title {
+            font-size: 16px;
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .log-entry {
+            font-size: 12px;
+            margin-bottom: 5px;
+            line-height: 1.4;
+        }
+
+        .log-timestamp {
+            color: var(--text-color-secondary);
+        }
+
+        .log-success {
+            color: var(--success-color);
+        }
+
+        .log-error {
+            color: var(--error-color);
+        }
+
+        .log-pause {
+            color: var(--pause-color);
+        }
+
+        .log-like {
+            color: var(--like-color);
+        }
+
+        .log-pin {
+            color: var(--pin-color);
+        }
+
+        .log-scroll {
+            color: var(--scroll-color);
+        }
+        .log-vol {
+            color: var(--vol-color);
+        }
+
+        .log-info {
+            color: var(--info-color);
+        }
+        .log-restart {
+            color: var(--restart-color);
+        }
+
+        .btn-exit {
+            margin-top: 15px;
+            background-color: var(--frame-bg);
+            color: var(--text-color);
+        }
+        #control-box{
+            border: #4d4d4d solid 1px;
+            padding: 0px 0px;
+        }
+        #control-box-btn{
+            padding: 0px 10px;
+        }
+        #system-box{
+            border: #4d4d4d solid 1px;
+            padding: 0px 0px;
+        }
+        #system-box-btn{
+            padding: 0px 10px;
+        }
+        .section-title{
+            padding: 2px 10px 5px 10px;
+        }
+        .tab-content{
+            height: 374px;
+            border-radius: 0;
+            gap: 10px;
+            width: 370px;
+            margin: 0;
+        }
+        .log-container{
+            width: 100%;
+            height: 100%;
+            max-height: unset;
+            margin: 0;
+            border-radius: 0px;
+        }
+        #box-grid{
+            gap: 5px;
+            height: 400px;
+            max-height: 400px;
+            display: flex;
+        }
+        #box-panel{
+            display: flex;
+            height: 100%;
+            flex-direction: column;
+        }
+        .log-entry > span,
+        #log-entries{
+            font-size: 14px;
+        }
+        .hotkey-item{
+            margin-bottom: 0px;
+        }
+        .subtitle{
+            margin: 0;
+        }
+        .separator {
+            height: 1px;
+            background-color: transparent;
+            margin: 10px 0;
+        }
+        .tab-btn{
+            font-size: 12px;
+            color: #a5a5a5;
+        }
+        .input-group input {
+            margin-left: 5px;
+            margin-right: 0px;
+        }
+        .toggle-switch {
+            position: relative;
+            display: inline-flex;
+            width: 130px;
+            height: 25px;
+            background-color: var(--frame-bg);
+            border-radius: 0px;
+            overflow: hidden;
+            border: 1px solid var(--highlight);
+        }
+
+        .toggle-switch input[type="radio"] {
+            display: none;
+        }
+
+        .toggle-label {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 12px;
+            z-index: 1;
+            transition: color 0.3s;
+            color: var(--text-color-secondary);
+        }
+
+        .toggle-switch input[type="radio"]:checked + .toggle-label {
+            color: #00ce68;
+            font-weight: bold;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background-color: #222222;
+            transition: transform 0.3s;
+            border-radius: 0px;
+        }
+
+        #connection_wifi:checked ~ .toggle-slider {
+            transform: translateX(100%);
+        }
+        .hotkey-item {
+            cursor: pointer;
+            padding: 5px;
+            border-radius: 3px;
+        }
+
+        .hotkey-item:hover {
+            background-color: var(--highlight);
+        }
+
+        #hotkeyModal div {
+            border: 1px solid var(--highlight);
+        }
+        .log-entry > span, #log-entries{
+            white-space: nowrap !important;
+        }
+        ::-webkit-scrollbar {
+            width: 3px;
+            height: 3px;
+        }
+        ::-webkit-scrollbar-thumb {
+            background-color: #ffffff;
+            border-radius: 0px;
+        }
+        ::-webkit-scrollbar-track {
+            background-color: #111111;
+        }
+    </style>
+</head>
+<body>
+    
+    <div class="header" style="position: relative; padding-top: 6px;">
+        <div style="
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, #5b87ff 0%, #ff49a1 100%);
+            opacity: 0.2;
+            z-index: -1;
+        "></div>
+        <div class="title" style="display: flex; align-items: center; justify-content: center; gap: 10px;">
+            Android TikTok Controller
+        </div>
+        <div class="subtitle">Powered by kelix.me & KR.Corp</div>
+        <div class="separator"></div>
+    </div>
+    <div id="box-grid">
+        <div id="box-panel">
+            <div class="tabs">
+                <button class="tab-btn active" data-tab="control">Управление</button>
+                <button class="tab-btn" data-tab="settings">Настройки</button>
+                <button class="tab-btn" data-tab="hotkeys">Клавиатура</button>
+            </div>
+    
+            <!-- Вкладка управления -->
+            <div id="control" class="tab-content active">
+                <div id="control-box">
+                    <div class="section-title">Управление TikTok</div>
+                    <div id="control-box-btn" style="margin-bottom: 8px;">
+                        <button class="btn btn-pause" onclick="performAction('pause')">⏯️ Пауза/плей</button>
+                        <button class="btn btn-like" onclick="performAction('like')">❤️ Лайк</button>
+                        <button class="btn btn-pin" onclick="performAction('pin')">⭐ Избранное</button>
+                        <div class="btn-row">
+                            <button class="btn btn-scroll" onclick="performAction('scroll_down')">⏪ Предыдущее</button>
+                            <button class="btn btn-scroll" onclick="performAction('scroll_up')">⏩ Следующее</button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div id="system-box">
+                    <div class="section-title">Системные кнопки</div>
+                    <div id="control-box-btn" style="margin-bottom: 8px;">
+                        <div class="btn-row">
+                            <button class="btn btn-vol_min" style="background: #130b2b; padding: 6px 0px; max-width: 50px; font-size: 12px;" onclick="performAction('vol_min')">🔈➖</button>
+                            <button class="btn btn-vol_plus" style="background: #130b2b; padding: 6px 0px; max-width: 50px; font-size: 12px;" onclick="performAction('vol_plus')"> 🔊➕</button>
+                            <button class="btn" style="padding: 6px 0px; font-size: 12px;" onclick="performAction('back')">Назад</button>
+                            <button class="btn" style="padding: 6px 0px; font-size: 12px;" onclick="performAction('home')">Домой</button>
+                            <button class="btn" style="padding: 6px 0px; font-size: 12px;" onclick="performAction('recent')">Задачи</button>
+                        </div>
+                        <div class="btn-row">
+                            <button id="restartScrcpyBtn" class="btn btn-restart">Перезапустить scrcpy</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Вкладка настроек -->
+            <div id="settings" class="tab-content">
+                <div id="control-box">
+                    <div class="section-title">Настройка координат</div>
+                    <div id="control-box-btn">
+                        <div class="input-group">
+                            <label>Пауза (X Y):</label>
+                            <input placeholder="X" type="text" id="pause_x" value="{{ pause_coords[0] }}">
+                            <input placeholder="Y" type="text" id="pause_y" value="{{ pause_coords[1] }}">
+                        </div>
+                        <div class="input-group">
+                            <label>Лайк (X Y):</label>
+                            <input placeholder="X" type="text" id="like_x" value="{{ like_coords[0] }}">
+                            <input placeholder="Y" type="text" id="like_y" value="{{ like_coords[1] }}">
+                        </div>
+                        <div class="input-group">
+                            <label>Избранное (X Y):</label>
+                            <input placeholder="X" type="text" id="pin_x" value="{{ pin_coords[0] }}">
+                            <input placeholder="Y" type="text" id="pin_y" value="{{ pin_coords[1] }}">
+                        </div>
+                        <button class="btn btn-accent" style="margin-bottom: 10px;" onclick="saveCoords()">Сохранить координаты</button>
+                    </div>
+                </div>
+
+                <div id="control-box">
+                    <div class="section-title">Настройки подключения</div>
+                    <div id="control-box-btn">
+                        <div class="input-group" style="justify-content: space-between; margin-bottom: 5px;">
+                            <label>ADB подключение через:</label>
+                            <div class="toggle-switch">
+                                <input type="radio" id="connection_usb" name="connection_type" value="usb" 
+                                    {% if connection_type == 'usb' %}checked{% endif %}>
+                                <label for="connection_usb" class="toggle-label">USB</label>
+                                <input type="radio" id="connection_wifi" name="connection_type" value="wifi"
+                                    {% if connection_type == 'wifi' %}checked{% endif %}>
+                                <label for="connection_wifi" class="toggle-label">Wi-Fi</label>
+                                <span class="toggle-slider"></span>
+                            </div>
+                        </div>
+                        <div class="input-group ip-block-box" {% if connection_type == 'usb' %}style="display:none;"{% endif %}>
+                            <label>IP-адрес:</label>
+                            <input placeholder="192.168.1.100" type="text" id="adb_ip" style='width: 150px;' value="{{ adb_ip }}" style="flex: 1;">
+                            <input placeholder="5555" type="text" id="adb_port" value="{{ adb_port }}" style="flex: 1;">
+                        </div>
+                        <button class="btn btn-accent" style="margin-bottom: 10px;" onclick="saveConnectionSettings()">Сохранить настройки</button>
+                    </div>
+                </div>
+            </div>
+    
+            <!-- Вкладка горячих клавиш -->
+            <div id="hotkeys" class="tab-content">
+                <div id="control-box">
+                    <style>
+                        .hotkey-key{
+                            width: 130px;
+                            font-family: 'Unbounded', 'Segoe UI emoji';
+                            font-size: 13px;
+                            font-weight: 400;
+                            padding: 5px;
+                            background-color: var(--frame-bg);
+                            border: 1px solid var(--highlight);
+                            color: var(--text-color);
+                            margin-right: 0px;
+                            display: flex;
+                            justify-content: center;
+                            align-items: center;
+                            text-transform: uppercase;
+                        }
+                        .hotkey-key:hover{
+                            background: #222222;
+                        }
+                        .hotkey-item {
+                            cursor: pointer;
+                            padding: 0px;
+                            border-radius: 0px;
+                            display: flex;
+                            align-items: center;
+                        }
+                        .hotkey-item:hover{
+                            background: unset;
+                        }
+                        .keylist{
+                            flex-direction: column;
+                            display: flex;
+                            gap: 2px;
+                        }
+                        #pressedKey{
+                            text-transform: uppercase;
+                        }
+                    </style>
+                    <div class="section-title">Горячие клавиши</div>
+                    <div id="control-box-btn" class="keylist" style="margin-bottom: 10px;">
+                        <div class="hotkey-item" onclick="startHotkeyChange('pause')">
+                            <div class="hotkey-desc">Пауза/плей:</div>
+                            <div class="hotkey-key" id="hotkey-pause">{{ hotkeys.pause }}</div>
+                        </div>
+                        <div class="hotkey-item" onclick="startHotkeyChange('like')">
+                            <div class="hotkey-desc">Лайк:</div>
+                            <div class="hotkey-key" id="hotkey-like">{{ hotkeys.like }}</div>
+                        </div>
+                        <div class="hotkey-item" onclick="startHotkeyChange('pin')">
+                            <div class="hotkey-desc">Избранное:</div>
+                            <div class="hotkey-key" id="hotkey-pin">{{ hotkeys.pin }}</div>
+                        </div>
+                        <div class="hotkey-item" onclick="startHotkeyChange('scroll_up')">
+                            <div class="hotkey-desc">Следующее видео:</div>
+                            <div class="hotkey-key" id="hotkey-scroll-up">{{ hotkeys.scroll_up }}</div>
+                        </div>
+                        <div class="hotkey-item" onclick="startHotkeyChange('scroll_down')">
+                            <div class="hotkey-desc">Предыдущее видео:</div>
+                            <div class="hotkey-key" id="hotkey-scroll-down">{{ hotkeys.scroll_down }}</div>
+                        </div>
+                    </div>
+                </div>
+    
+                <div id="control-box">
+                    <div class="section-title">Как использовать?</div>
+                    <div id="control-box-btn">
+                        <div style="font-size: 12px; margin-bottom: 10px;">
+                            1. Убедитесь, что scrcpy запущен<br>
+                            2. Переключитесь на окно scrcpy<br>
+                            3. Используйте горячие клавиши для управления
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Логи действий -->
+        <div class="log-container">
+            <div class="log-title">Логи действий</div>
+            <div id="log-entries">
+                {% for log in logs %}
+                    <div class="log-entry">
+                        <span class="log-timestamp">[{{ log.timestamp }}]</span>
+                        <span class="log-{{ log.tag }}">{{ log.message }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <script>
+    // Словарь для конвертации клавиш
+    const keyConversionMap = {
+        // Цифры
+        'Digit0': '0', 'Digit1': '1', 'Digit2': '2', 'Digit3': '3', 'Digit4': '4',
+        'Digit5': '5', 'Digit6': '6', 'Digit7': '7', 'Digit8': '8', 'Digit9': '9',
+        
+        // Numpad
+        'Numpad0': 'num 0', 'Numpad1': 'num 1', 'Numpad2': 'num 2', 'Numpad3': 'num 3',
+        'Numpad4': 'num 4', 'Numpad5': 'num 5', 'Numpad6': 'num 6', 'Numpad7': 'num 7',
+        'Numpad8': 'num 8', 'Numpad9': 'num 9',
+        'NumpadAdd': 'num +', 'NumpadSubtract': 'num -', 'NumpadMultiply': 'num *',
+        'NumpadDivide': 'num /', 'NumpadEnter': 'num enter', 'NumpadDecimal': 'num .',
+        
+        // Буквы
+        'KeyA': 'a', 'KeyB': 'b', 'KeyC': 'c', 'KeyD': 'd', 'KeyE': 'e', 'KeyF': 'f',
+        'KeyG': 'g', 'KeyH': 'h', 'KeyI': 'i', 'KeyJ': 'j', 'KeyK': 'k', 'KeyL': 'l',
+        'KeyM': 'm', 'KeyN': 'n', 'KeyO': 'o', 'KeyP': 'p', 'KeyQ': 'q', 'KeyR': 'r',
+        'KeyS': 's', 'KeyT': 't', 'KeyU': 'u', 'KeyV': 'v', 'KeyW': 'w', 'KeyX': 'x',
+        'KeyY': 'y', 'KeyZ': 'z',
+        
+        // Функциональные клавиши
+        'F1': 'f1', 'F2': 'f2', 'F3': 'f3', 'F4': 'f4', 'F5': 'f5', 'F6': 'f6',
+        'F7': 'f7', 'F8': 'f8', 'F9': 'f9', 'F10': 'f10', 'F11': 'f11', 'F12': 'f12',
+        
+        // Специальные клавиши
+        'Escape': 'esc', 'Tab': 'tab', 'CapsLock': 'caps lock', 'ShiftLeft': 'shift',
+        'ShiftRight': 'shift', 'ControlLeft': 'ctrl', 'ControlRight': 'ctrl',
+        'AltLeft': 'alt', 'AltRight': 'alt', 'MetaLeft': 'win', 'MetaRight': 'win',
+        'Space': 'space', 'Enter': 'enter', 'Backspace': 'backspace', 'Delete': 'delete',
+        'Insert': 'insert', 'Home': 'home', 'End': 'end', 'PageUp': 'page up',
+        'PageDown': 'page down', 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left',
+        'ArrowRight': 'right',
+        
+        // Символы
+        'Minus': '-', 'Equal': '=', 'BracketLeft': '[', 'BracketRight': ']',
+        'Backslash': '\\', 'Semicolon': ';', 'Quote': "'", 'Comma': ',',
+        'Period': '.', 'Slash': '/', 'Backquote': '`',
+        
+        // Модификаторы
+        'NumLock': 'num lock', 'ScrollLock': 'scroll lock', 'Pause': 'pause',
+        'PrintScreen': 'print screen', 'ContextMenu': 'menu'
+    };
+
+    function updateScrcpyStatus(isRunning) {
+        const btn = document.getElementById('restartScrcpyBtn');
+        if (isRunning) {
+            btn.classList.remove('btn-danger');
+            btn.classList.add('btn-warning');
+            btn.textContent = 'Перезапустить scrcpy';
+        } else {
+            btn.classList.remove('btn-warning');
+            btn.classList.add('btn-danger');
+            btn.textContent = 'Запустить scrcpy (отключен)';
+        }
+    }
+
+    // Обработчик кнопки перезапуска
+    document.getElementById('restartScrcpyBtn').addEventListener('click', async () => {
+        const response = await fetch('/action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action: 'restart_scrcpy' })
+        });
+        const result = await response.json();
+        updateScrcpyStatus(result.scrcpy_running);
+    });
+
+    // При загрузке страницы проверяем статус
+    fetch('/get_logs')
+        .then(response => response.json())
+        .then(data => {
+            updateScrcpyStatus(data.scrcpy_running);
+        });
+
+    async function saveConnectionSettings() {
+        const connectionType = document.querySelector('input[name="connection_type"]:checked').value;
+        const adbIp = document.getElementById('adb_ip').value;
+        const adbPort = document.getElementById('adb_port').value;
+        
+        if (connectionType === "wifi") {
+            if (!adbIp || !adbPort) {
+                alert("Для Wi-Fi подключения необходимо указать IP-адрес и порт");
+                return;
+            }
+            
+            if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(adbIp)) {
+                alert("Пожалуйста, введите корректный IP-адрес (например, 192.168.1.100)");
+                return;
+            }
+            
+            if (!/^\d+$/.test(adbPort)) {
+                alert("Порт должен содержать только цифры");
+                return;
+            }
+        }
+        
+        const response = await fetch('/action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'save_connection_settings',
+                connection_type: connectionType,
+                adb_ip: adbIp,
+                adb_port: adbPort
+            }),
+        });
+        
+        const data = await response.json();
+        updateLogs(data.logs);
+    }
+
+    // Переключение вкладок
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+            
+            btn.classList.add('active');
+            const tabId = btn.getAttribute('data-tab');
+            document.getElementById(tabId).classList.add('active');
+        });
+    });
+
+    // Выполнение действий
+    async function performAction(action) {
+        if (action === 'home' || action === 'back' || action === 'recent') {
+            const keyevent = {
+                'home': 'KEYCODE_HOME',
+                'back': 'KEYCODE_BACK',
+                'recent': 'KEYCODE_APP_SWITCH'
+            }[action];
+            
+            const response = await fetch('/action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    action: 'adb_command',
+                    command: `input keyevent ${keyevent}`
+                }),
+            });
+        } else {
+            const response = await fetch('/action', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ action }),
+            });
+            
+            const data = await response.json();
+            updateLogs(data.logs);
+        }
+    }
+
+    // Сохранение координат
+    async function saveCoords() {
+        const pause_x = document.getElementById('pause_x').value;
+        const pause_y = document.getElementById('pause_y').value;
+        const like_x = document.getElementById('like_x').value;
+        const like_y = document.getElementById('like_y').value;
+        const pin_x = document.getElementById('pin_x').value;
+        const pin_y = document.getElementById('pin_y').value;
+        
+        const response = await fetch('/action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'save_coords',
+                pause_x, pause_y,
+                like_x, like_y,
+                pin_x, pin_y
+            }),
+        });
+        
+        const data = await response.json();
+        updateLogs(data.logs);
+    }
+
+    // Обновление логов
+    function updateLogs(logs) {
+        const logContainer = document.getElementById('log-entries');
+        logContainer.innerHTML = '';
+        
+        logs.forEach(log => {
+            const logEntry = document.createElement('div');
+            logEntry.className = 'log-entry';
+            
+            const timestamp = document.createElement('span');
+            timestamp.className = 'log-timestamp';
+            timestamp.textContent = `[${log.timestamp}] `;
+            
+            const message = document.createElement('span');
+            message.className = `log-${log.tag}`;
+            message.textContent = log.message;
+            
+            logEntry.appendChild(timestamp);
+            logEntry.appendChild(message);
+            logContainer.appendChild(logEntry);
+        });
+        
+        logContainer.scrollTop = logContainer.scrollHeight;
+    }
+
+    // Периодическое обновление логов
+    setInterval(async () => {
+        const response = await fetch('/get_logs');
+        const data = await response.json();
+        updateLogs(data.logs);
+    }, 1000);
+
+    // Инициализация при загрузке
+    document.addEventListener('DOMContentLoaded', function() {
+        const connectionType = "{{ connection_type }}";
+        document.getElementById(`connection_${connectionType}`).checked = true;
+        
+        const wifiFields = document.querySelectorAll('.ip-block-box');
+        if (connectionType === 'usb') {
+            wifiFields.forEach(field => field.style.display = 'none');
+        } else {
+            wifiFields.forEach(field => field.style.display = 'flex');
+        }
+        
+        updateToggleSwitch();
+    });
+
+    function updateToggleSwitch() {
+        const slider = document.querySelector('.toggle-slider');
+        if (document.getElementById('connection_wifi').checked) {
+            slider.style.transform = 'translateX(100%)';
+        } else {
+            slider.style.transform = 'translateX(0%)';
+        }
+    }
+
+    document.querySelectorAll('input[name="connection_type"]').forEach(radio => {
+        radio.addEventListener('change', function() {
+            const isWifi = this.value === 'wifi';
+            document.querySelector('.toggle-slider').style.transform = 
+                isWifi ? 'translateX(100%)' : 'translateX(0%)';
+            document.querySelector('.ip-block-box').style.display = 
+                isWifi ? 'flex' : 'none';
+        });
+    });
+
+    // Модальное окно для изменения горячих клавиш
+    let currentHotkeyAction = null;
+    let pressedKey = null;
+
+    function startHotkeyChange(action) {
+        currentHotkeyAction = action;
+        document.getElementById('currentAction').textContent = getActionName(action);
+        document.getElementById('pressedKey').textContent = '...';
+        document.getElementById('hotkeyModal').style.display = 'flex';
+        pressedKey = null;
+        
+        document.addEventListener('keydown', tempKeyHandler);
+    }
+
+    function tempKeyHandler(e) {
+        e.preventDefault();
+        pressedKey = keyConversionMap[e.code] || e.code.toLowerCase();
+        document.getElementById('pressedKey').textContent = pressedKey;
+    }
+
+    function cancelHotkeyChange() {
+        document.getElementById('hotkeyModal').style.display = 'none';
+        document.removeEventListener('keydown', tempKeyHandler);
+    }
+
+    function confirmHotkeyChange() {
+        if (pressedKey) {
+            updateHotkey(currentHotkeyAction, pressedKey);
+        }
+        cancelHotkeyChange();
+    }
+
+    function getActionName(action) {
+        const names = {
+            'pause': 'Пауза/плей',
+            'like': 'Лайк',
+            'pin': 'Избранное',
+            'scroll_up': 'Следующее видео',
+            'scroll_down': 'Предыдущее видео'
+        };
+        return names[action] || action;
+    }
+
+    async function updateHotkey(action, key) {
+        const response = await fetch('/action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                action: 'update_hotkey',
+                action_name: action,
+                key: key
+            }),
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+            document.getElementById(`hotkey-${action}`).textContent = key;
+        }
+        updateLogs(data.logs);
+    }
+    </script>
+    <style>
+        #currentAction{
+            color: #00ce68;
+            font-size: 18px;
+        }
+    </style>
+    <div id="hotkeyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+        <div style="background-color: var(--frame-bg); padding: 20px; border-radius: 5px; width: 400px;">
+            <div style="margin-bottom: 5px; font-size: 14px; padding: 10px; text-align: center;"><span id="currentAction"></span><br>Нажмите на любую кнопку на клавиатуре</div>
+            <div id="pressedKey" style="font-size: 24px; text-align: center; margin: 10px 0; color: var(--accent-color);"></div>
+            <div style="display: flex; justify-content: space-between;">
+                <button onclick="cancelHotkeyChange()" class="btn" style="flex: 1; margin-right: 0px; margin-bottom: 0px;">Отмена</button>
+                <button onclick="confirmHotkeyChange()" class="btn btn-accent" style="flex: 1; margin-left: 0px; margin-bottom: 0px;">Сохранить</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
