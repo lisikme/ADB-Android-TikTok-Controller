@@ -99,10 +99,6 @@
   },
   {
    "optionDest": "datas",
-   "value": "D:/tiktok_adb_control/config.json;."
-  },
-  {
-   "optionDest": "datas",
    "value": "D:/tiktok_adb_control/icon.png;."
   },
   {
@@ -140,10 +136,6 @@
   {
    "optionDest": "datas",
    "value": "D:/tiktok_adb_control/templates;templates/"
-  },
-  {
-   "optionDest": "datas",
-   "value": "D:/tiktok_adb_control/static;static/"
   }
  ],
  "nonPyinstallerOptions": {

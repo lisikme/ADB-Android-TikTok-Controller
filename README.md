@@ -15,10 +15,10 @@
   - Управление громкостью (увеличение/уменьшение)
   - Кнопки "Назад", "Домой", "Недавние приложения"
 - Гибкие настройки:
-  - Настройка координат кнопок
+  - Настройка координат кнопок (Калибровка под экран)
   - Настройка горячих клавиш
   - Подключение по USB или Wi-Fi
-- Запуск scrcpy в фоновом режиме
+- Запуск scrcpy в нем происходит всё взаимодействия
 - Логирование всех действий
 - Русскоязычный интерфейс
 
@@ -61,17 +61,18 @@
 
 ## Горячие клавиши (по умолчанию)
 
-- Пауза/плей: Num 0
-- Лайк: Num 5
-- Избранное: Num 2
-- Следующее видео: Num 3
-- Предыдущее видео: Num 1
+- Пауза/плей: NUM 0
+- Лайк: NUM 5
+- Избранное: NUM 2
+- Следующее видео: NUM 3
+- Предыдущее видео: NUM 1
 
 ## Сборка в exe
 
 Для сборки в один исполняемый файл используйте команду:
 ```
-pyinstaller --noconfirm --onefile --console --icon "app.ico" --name "tiktokclientadb" --hide-console "hide-early" --add-data "adb.exe;." --add-data "AdbWinApi.dll;." --add-data "AdbWinUsbApi.dll;." --add-data "app.bat;." --add-data "app.ico;." --add-data "app.py;." --add-data "avcodec-61.dll;." --add-data "avformat-61.dll;." --add-data "avutil-59.dll;." --add-data "config.json;." --add-data "icon.png;." --add-data "libusb-1.0.dll;." --add-data "open_a_terminal_here.bat;." --add-data "scrcpy.exe;." --add-data "scrcpy-console.bat;." --add-data "scrcpy-noconsole.vbs;." --add-data "scrcpy-server;." --add-data "SDL2.dll;." --add-data "swresample-5.dll;." --add-data "templates;templates/" --add-data "static;static/" "app.py"
+pip install auto-py-to-exe
+auto-py-to-exe
 ```
 
 ## Дополнительные файлы
@@ -89,11 +90,9 @@ pyinstaller --noconfirm --onefile --console --icon "app.ico" --name "tiktokclien
 1. **Гибкая архитектура** - все настройки хранятся в config.json
 2. **Два интерфейса** - веб-интерфейс и горячие клавиши
 3. **Многопоточность** - отдельные потоки для обработки клавиш, scrcpy и веб-сервера
-4. **Кросс-платформенность** - может работать на Windows и Linux (с небольшими изменениями)
-5. **Автоматическое обновление логов** - без перезагрузки страницы
+4. **Автоматическое обновление логов** - без перезагрузки страницы
 
 Приложение идеально подходит для:
 - Стримеров, которые хотят управлять TikTok с компьютера
 - Автоматизации взаимодействия с TikTok
-- Тестирования интерфейса TikTok
 - Управления устройством без касания экрана
