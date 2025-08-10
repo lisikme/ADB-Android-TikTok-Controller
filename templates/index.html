@@ -440,7 +440,7 @@
                         <button class="btn btn-pause" onclick="performAction('pause')">⏯️ Пауза/плей</button>
                         <button class="btn btn-like" onclick="performAction('like')">❤️ Лайк</button>
                         <button class="btn btn-pin" onclick="performAction('pin')">⭐ Избранное</button>
-                        <div class="btn-row">
+                    <div class="btn-row">
                             <button class="btn btn-scroll" onclick="performAction('scroll_down')">⏪ Предыдущее</button>
                             <button class="btn btn-scroll" onclick="performAction('scroll_up')">⏩ Следующее</button>
                         </div>
@@ -470,16 +470,19 @@
                     <div class="section-title">Настройка координат</div>
                     <div id="control-box-btn">
                         <div class="input-group">
+                            <button class="btn btn-pause" style="margin: 0; margin-right: 5px; width: 40px; height: 28px; display: flex; padding: 0; justify-content: space-around; align-items: center;" onclick="performAction('pause')">⏯️</button>
                             <label>Пауза (X Y):</label>
                             <input placeholder="X" type="text" id="pause_x" value="{{ pause_coords[0] }}">
                             <input placeholder="Y" type="text" id="pause_y" value="{{ pause_coords[1] }}">
                         </div>
                         <div class="input-group">
+                            <button class="btn btn-like" style="margin: 0; margin-right: 5px; width: 40px; height: 28px; display: flex; padding: 0; justify-content: space-around; align-items: center;" onclick="performAction('like')">❤️</button>
                             <label>Лайк (X Y):</label>
                             <input placeholder="X" type="text" id="like_x" value="{{ like_coords[0] }}">
                             <input placeholder="Y" type="text" id="like_y" value="{{ like_coords[1] }}">
                         </div>
                         <div class="input-group">
+                            <button class="btn btn-pin" style="margin: 0; margin-right: 5px; width: 40px; height: 28px; display: flex; padding: 0; justify-content: space-around; align-items: center;" onclick="performAction('pin')">⭐</button>
                             <label>Избранное (X Y):</label>
                             <input placeholder="X" type="text" id="pin_x" value="{{ pin_coords[0] }}">
                             <input placeholder="Y" type="text" id="pin_y" value="{{ pin_coords[1] }}">
@@ -735,35 +738,35 @@
 
     // Выполнение действий
     async function performAction(action) {
-        if (action === 'home' || action === 'back' || action === 'recent') {
-            const keyevent = {
-                'home': 'KEYCODE_HOME',
-                'back': 'KEYCODE_BACK',
-                'recent': 'KEYCODE_APP_SWITCH'
-            }[action];
+        // if (action === 'home' || action === 'back' || action === 'recent') {
+        //     const keyevent = {
+        //         'home': 'KEYCODE_HOME',
+        //         'back': 'KEYCODE_BACK',
+        //         'recent': 'KEYCODE_APP_SWITCH'
+        //     }[action];
             
-            const response = await fetch('/action', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({
-                    action: 'adb_command',
-                    command: `input keyevent ${keyevent}`
-                }),
-            });
-        } else {
-            const response = await fetch('/action', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
-                body: JSON.stringify({ action }),
-            });
-            
-            const data = await response.json();
-            updateLogs(data.logs);
-        }
+        //     const response = await fetch('/action', {
+        //         method: 'POST',
+        //         headers: {
+        //             'Content-Type': 'application/json',
+        //         },
+        //         body: JSON.stringify({
+        //             action: 'adb_command',
+        //             command: `input keyevent ${keyevent}`
+        //         }),
+        //     });
+        // } else {
+        const response = await fetch('/action', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ action }),
+        });
+        
+        const data = await response.json();
+        updateLogs(data.logs);
+        // }
     }
 
     // Сохранение координат
@@ -937,5 +940,27 @@
             </div>
         </div>
     </div>
+    <script>
+        // Переключение вкладок
+document.querySelectorAll('.tab-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+        
+        btn.classList.add('active');
+        const tabId = btn.getAttribute('data-tab');
+        document.getElementById(tabId).classList.add('active');
+        
+        // Отправляем информацию о текущей вкладке на сервер
+        fetch('/tab_changed', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ tab: tabId })
+        });
+    });
+});
+    </script>
 </body>
 </html>

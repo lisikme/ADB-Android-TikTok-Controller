@@ -184,6 +184,10 @@ class AndroidController:
             print(f"Ошибка сохранения конфигурации: {e}")
             return False
 
+    def set_pointer_location(self, visible):
+        value = "1" if visible else "0"
+        self.adb_command(f"settings put system pointer_location {value}")
+
     def adb_command(self, command):
         try:
             if self.connection_type == "wifi":
@@ -267,6 +271,15 @@ class AndroidController:
     def vol_min_action(self):
         self.log_message("🔈 Громкость ➖", 'vol')
         return self.adb_command("input keyevent KEYCODE_VOLUME_DOWN")
+
+    def home_action(self):
+        return self.adb_command("input keyevent KEYCODE_HOME")
+
+    def back_action(self):
+        return self.adb_command("input keyevent KEYCODE_BACK")
+        
+    def recent_action(self):
+        return self.adb_command("input keyevent KEYCODE_APP_SWITCH")
     
     def keyboard_listener(self):
         time.sleep(3)
@@ -350,6 +363,8 @@ controller = AndroidController()
 @app.route('/')
 def index():
     scrcpy_running = controller.scrcpy_process and controller.scrcpy_process.poll() is None
+    # По умолчанию выключаем отображение указателя
+    controller.set_pointer_location(False)
     return render_template('index.html', 
         pause_coords=controller.pause_coords.split(),
         like_coords=controller.like_coords.split(),
@@ -361,11 +376,19 @@ def index():
         adb_port=controller.adb_port,
         hotkeys=controller.hotkeys)
 
+@app.route('/tab_changed', methods=['POST'])
+def tab_changed():
+    data = request.json
+    tab = data.get('tab') # type: ignore
+    # Включаем отображение указателя только на вкладке настроек
+    controller.set_pointer_location(tab == "settings")
+    return jsonify({'success': True})
+
 @app.route('/action', methods=['POST'])
 def handle_action():
     data = request.json
     action = data.get('action') # type: ignore
-    
+
     if action == "update_hotkey":
         success = controller.update_hotkey(
             data.get('action_name'), # type: ignore
@@ -390,11 +413,9 @@ def handle_action():
             "pause", 
             "like", 
             "pin", 
-            "scroll_up", 
-            "scroll_down", 
-            "vol_plus", 
-            "vol_min", 
-            "restart_scrcpy"
+            "scroll_up", "scroll_down", 
+            "vol_min", "vol_plus", "home", "back", "recent"
+            "restart_scrcpy",
         ]:
         if action == "vol_plus":
             success = controller.vol_plus_action()
@@ -402,6 +423,24 @@ def handle_action():
             success = controller.vol_min_action()
         if action == "restart_scrcpy":
             success = controller.restart_scrcpy()
+        if action == "pause":
+            success = controller.pause_action()
+        if action == "like":
+            success = controller.like_action()
+        if action == "pin":
+            success = controller.pin_action()
+        if action == "scroll_down":
+            success = controller.scroll_down_action()
+        if action == "scroll_up":
+            success = controller.scroll_up_action()
+        if action == "home":
+            success = controller.home_action()
+        if action == "back":
+            success = controller.back_action()
+        if action == "recent":
+            success = controller.recent_action()
+
+
         else:
             success = controller.perform_action(action)
     else:
@@ -451,3 +490,11 @@ if __name__ == "__main__":
     
     window.events.closed += on_closed
     webview.start()
+
+
+
+
+
+
+
+
