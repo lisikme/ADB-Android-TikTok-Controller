@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify
+from flask import Flask, render_template, request, jsonify, send_from_directory
 import ctypes
 import json
 import os
@@ -28,6 +28,7 @@ class AndroidController:
         self.connection_type = "usb"
         self.adb_ip = "192.168.1.1"
         self.adb_port = "5555"
+        self.scrcpy_fps = "60"
         self.scrcpy_process = None
         self.hotkeys = {
             'pause': 'num 0',
@@ -79,7 +80,6 @@ class AndroidController:
             return True
         return False
 
-
     def load_connection_settings(self):
         try:
             if os.path.exists(self.config_file):
@@ -88,11 +88,13 @@ class AndroidController:
                     self.connection_type = config.get("connection_type", "usb")
                     self.adb_ip = config.get("adb_ip", "192.168.1.1")
                     self.adb_port = config.get("adb_port", "5555")
+                    self.scrcpy_fps = config.get("scrcpy_fps", "60")
         except Exception as e:
             print(f"Ошибка загрузки настроек подключения: {e}")
             self.connection_type = "wifi"
             self.adb_ip = "192.168.1.1"
             self.adb_port = "5555"
+            self.scrcpy_fps = "60"
 
     def start_keyboard_listener(self):
         self.keyboard_thread = threading.Thread(target=self.keyboard_listener)
@@ -104,7 +106,7 @@ class AndroidController:
         self.scrcpy_output_thread.daemon = True
         self.scrcpy_output_thread.start()
 
-    def save_connection_settings(self, connection_type, adb_ip, adb_port):
+    def save_connection_settings(self, connection_type, adb_ip, adb_port, scrcpy_fps):
         try:
             if connection_type == "wifi":
                 if not adb_ip or not adb_port:
@@ -121,6 +123,7 @@ class AndroidController:
             self.connection_type = connection_type
             self.adb_ip = adb_ip
             self.adb_port = adb_port
+            self.scrcpy_fps = scrcpy_fps
             
             config = {}
             if os.path.exists(self.config_file):
@@ -130,7 +133,8 @@ class AndroidController:
             config.update({
                 "connection_type": connection_type,
                 "adb_ip": adb_ip,
-                "adb_port": adb_port
+                "adb_port": adb_port,
+                "scrcpy_fps": scrcpy_fps
             })
             
             with open(self.config_file, 'w') as f:
@@ -170,15 +174,20 @@ class AndroidController:
             self.pin_coords = default_coords["pin"]
     
     def save_coords_to_file(self):
-        coords = {
-            "pause": self.pause_coords,
-            "like": self.like_coords,
-            "pin": self.pin_coords
-        }
-        
         try:
+            config = {}
+            if os.path.exists(self.config_file):
+                with open(self.config_file, 'r') as f:
+                    config = json.load(f)
+            
+            config.update({
+                "pause": self.pause_coords,
+                "like": self.like_coords,
+                "pin": self.pin_coords
+            })
+            
             with open(self.config_file, 'w') as f:
-                json.dump(coords, f, indent=4)
+                json.dump(config, f, indent=4)
             return True
         except Exception as e:
             print(f"Ошибка сохранения конфигурации: {e}")
@@ -196,6 +205,27 @@ class AndroidController:
             subprocess.run(["adb", "shell"] + command.split(), check=True)
             return True
         except subprocess.CalledProcessError as e:
+            print(f"Не удалось выполнить команду: {e}")
+            return False
+        except FileNotFoundError:
+            print("ADB не найден. Убедитесь, что Android Debug Bridge установлен и добавлен в PATH.")
+            return False
+    def adb_screen(self):
+        try:
+            if self.connection_type == "wifi":
+                subprocess.run(["adb", "connect", f"{self.adb_ip}:{self.adb_port}"], check=True)
+            # subprocess.run(['adb', 'exec-out', 'screencap', '-p' > 'screen.png'], check=True)
+            result = subprocess.run(
+                ["adb", "exec-out", "screencap", "-p"],
+                capture_output=True,
+                check=True
+            )
+
+            with open("screen.png", "wb") as f:
+                f.write(result.stdout)
+            return True
+        except subprocess.CalledProcessError as e:
+            self.log_message(f"Не удалось выполнить команду: {e}", 'error')
             print(f"Не удалось выполнить команду: {e}")
             return False
         except FileNotFoundError:
@@ -219,10 +249,28 @@ class AndroidController:
         self.pin_coords = f'{pin_x} {pin_y}'
         
         if self.save_coords_to_file():
+            self.adb_screen()
             self.log_message("✅ Координаты сохранены!", 'success')
             return True
         else:
             self.log_message("❌ Не удалось сохранить координаты в файл", 'error')
+            return False
+
+    def save_texture_info(self, texture_info):
+        """Сохраняет информацию о текстуре в texture.json"""
+        try:
+            texture_data = {
+                "texture": texture_info,
+                "timestamp": time.strftime("%Y-%m-%d %H:%M:%S", time.localtime())
+            }
+            
+            with open("texture.json", "w") as f:
+                json.dump(texture_data, f, indent=4)
+            
+            self.log_message(f"✅ Информация о текстуре сохранена: {texture_info}", 'success')
+            return True
+        except Exception as e:
+            self.log_message(f"❌ Ошибка сохранения информации о текстуре: {str(e)}", 'error')
             return False
 
     def perform_action(self, action):
@@ -299,8 +347,15 @@ class AndroidController:
         while hasattr(self, 'scrcpy_process') and self.scrcpy_process:
             output = self.scrcpy_process.stdout.readline() # type: ignore
             if output:
-                self.log_message(output.strip(), 'info')
-                print(output.strip())
+                output_line = output.strip()
+                self.log_message(output_line, 'info')
+                print(output_line)
+                
+                # Сохраняем информацию о текстуре
+                if "INFO: Texture:" in output_line:
+                    texture_info = output_line.split("INFO: Texture:")[1].strip()
+                    self.save_texture_info(texture_info)
+                    
             time.sleep(0.1)
 
     def start_scrcpy(self):
@@ -311,13 +366,13 @@ class AndroidController:
 
             if self.connection_type == "usb":
                 subprocess.run(["adb", "disconnect"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
-                command = ["scrcpy", "--stay-awake", "--turn-screen-off"]
+                command = ["scrcpy", f"--max-fps={self.scrcpy_fps}", "--stay-awake", "--turn-screen-off"]
                 self.log_message("🔄 Запуск scrcpy (USB)...", 'restart')
             else:
                 subprocess.run(["adb", "connect", f"{self.adb_ip}:{self.adb_port}"], check=True)
-                command = ["scrcpy", f"--tcpip={self.adb_ip}:{self.adb_port}", "--stay-awake", "--turn-screen-off"]
+                command = ["scrcpy", f"--max-fps={self.scrcpy_fps}", f"--tcpip={self.adb_ip}:{self.adb_port}", "--stay-awake", "--turn-screen-off"]
                 self.log_message(f"🔄 Запуск scrcpy (Wi-Fi {self.adb_ip}:{self.adb_port})...", 'restart')
-
+            self.adb_screen()
             self.scrcpy_process = subprocess.Popen(
                 command,
                 stdout=subprocess.PIPE,
@@ -339,7 +394,6 @@ class AndroidController:
             subprocess.run(["adb", "disconnect"], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
         else:
             subprocess.run(["adb", "connect", f"{self.adb_ip}:{self.adb_port}"], check=True)
-            
         self.start_scrcpy()
         return True
 
@@ -365,15 +419,42 @@ def index():
     scrcpy_running = controller.scrcpy_process and controller.scrcpy_process.poll() is None
     # По умолчанию выключаем отображение указателя
     controller.set_pointer_location(False)
+    
+    # Получаем координаты для отображения в центре окна
+    pause_x, pause_y = controller.pause_coords.split()
+    like_x, like_y = controller.like_coords.split()
+    pin_x, pin_y = controller.pin_coords.split()
+    
+    # Рассчитываем относительные координаты для отображения в центре
+    # Предполагаем стандартное разрешение экрана 1260x2240
+    screen_width = 1260
+    screen_height = 2240
+    
+    # Центрируем координаты относительно центра экрана
+    center_x = 400  # центр окна приложения
+    center_y = 270  # центр окна приложения
+    
+    # Вычисляем относительные координаты
+    pause_rel_x = center_x + (int(pause_x) - screen_width // 2) // 3
+    pause_rel_y = center_y + (int(pause_y) - screen_height // 2) // 3
+    like_rel_x = center_x + (int(like_x) - screen_width // 2) // 3
+    like_rel_y = center_y + (int(like_y) - screen_height // 2) // 3
+    pin_rel_x = center_x + (int(pin_x) - screen_width // 2) // 3
+    pin_rel_y = center_y + (int(pin_y) - screen_height // 2) // 3
+    
     return render_template('index.html', 
         pause_coords=controller.pause_coords.split(),
         like_coords=controller.like_coords.split(),
         pin_coords=controller.pin_coords.split(),
+        pause_rel_coords=[pause_rel_x, pause_rel_y],
+        like_rel_coords=[like_rel_x, like_rel_y],
+        pin_rel_coords=[pin_rel_x, pin_rel_y],
         connection_type=controller.connection_type,
         logs=controller.log_messages,
         scrcpy_running=scrcpy_running,
         adb_ip=controller.adb_ip,
         adb_port=controller.adb_port,
+        scrcpy_fps=controller.scrcpy_fps,
         hotkeys=controller.hotkeys)
 
 @app.route('/tab_changed', methods=['POST'])
@@ -381,7 +462,7 @@ def tab_changed():
     data = request.json
     tab = data.get('tab') # type: ignore
     # Включаем отображение указателя только на вкладке настроек
-    controller.set_pointer_location(tab == "settings")
+    # controller.set_pointer_location(tab == "settings")
     return jsonify({'success': True})
 
 @app.route('/action', methods=['POST'])
@@ -398,7 +479,8 @@ def handle_action():
         success = controller.save_connection_settings(
             data.get('connection_type'), # type: ignore
             data.get('adb_ip'), # type: ignore
-            data.get('adb_port') # type: ignore
+            data.get('adb_port'), # type: ignore
+            data.get('scrcpy_fps') # type: ignore
         )
     elif action == "save_coords":
         success = controller.save_coords(
@@ -414,33 +496,31 @@ def handle_action():
             "like", 
             "pin", 
             "scroll_up", "scroll_down", 
-            "vol_min", "vol_plus", "home", "back", "recent"
+            "vol_min", "vol_plus", "home", "back", "recent",
             "restart_scrcpy",
         ]:
         if action == "vol_plus":
             success = controller.vol_plus_action()
-        if action == "vol_min":
+        elif action == "vol_min":
             success = controller.vol_min_action()
-        if action == "restart_scrcpy":
+        elif action == "restart_scrcpy":
             success = controller.restart_scrcpy()
-        if action == "pause":
+        elif action == "pause":
             success = controller.pause_action()
-        if action == "like":
+        elif action == "like":
             success = controller.like_action()
-        if action == "pin":
+        elif action == "pin":
             success = controller.pin_action()
-        if action == "scroll_down":
+        elif action == "scroll_down":
             success = controller.scroll_down_action()
-        if action == "scroll_up":
+        elif action == "scroll_up":
             success = controller.scroll_up_action()
-        if action == "home":
+        elif action == "home":
             success = controller.home_action()
-        if action == "back":
+        elif action == "back":
             success = controller.back_action()
-        if action == "recent":
+        elif action == "recent":
             success = controller.recent_action()
-
-
         else:
             success = controller.perform_action(action)
     else:
@@ -448,16 +528,32 @@ def handle_action():
     
     return jsonify({
         'success': success,
-        'logs': controller.log_messages[-14:],
+        'logs': controller.log_messages[-22:],
         'scrcpy_running': controller.scrcpy_process and controller.scrcpy_process.poll() is None
     })
 
 @app.route('/get_logs')
 def get_logs():
     return jsonify({
-        'logs': controller.log_messages[-14:],
+        'logs': controller.log_messages[-22:],
         'scrcpy_running': controller.scrcpy_process and controller.scrcpy_process.poll() is None
     })
+
+# Маршрут для обслуживания файлов из текущей директории
+@app.route('/files/<path:filename>')
+def serve_files(filename):
+    # Безопасная проверка пути
+    base_directory = os.path.dirname(os.path.abspath(__file__))
+    file_path = os.path.join(base_directory, filename)
+    
+    # Проверяем, что файл находится в текущей директории (безопасность)
+    if not os.path.commonpath([base_directory, file_path]) == base_directory:
+        return "Access denied", 403
+    
+    if not os.path.exists(file_path):
+        return "File not found", 404
+        
+    return send_from_directory(base_directory, filename)
 
 @app.route('/shutdown', methods=['POST'])
 def shutdown():
@@ -478,7 +574,7 @@ if __name__ == "__main__":
     window = webview.create_window(
         'Android Controller', 
         'http://127.0.0.1:56987/', 
-        width=800, height=539, resizable=False
+        width=1000, height=580, resizable=False
     )
     
     def on_closed():
@@ -488,13 +584,5 @@ if __name__ == "__main__":
             controller.scrcpy_process.wait(timeout=1)
         os._exit(0)
     
-    window.events.closed += on_closed
+    window.events.closed += on_closed # type: ignore
     webview.start()
-
-
-
-
-
-
-
-

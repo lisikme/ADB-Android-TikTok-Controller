@@ -4,409 +4,643 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Android TikTok Controller by kelix.me</title>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900');
-        @import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
-        :root {
-            --bg-color: #000000;
-            --frame-bg: #111111;
-            --text-color: #FFFFFF;
-            --text-color-secondary: #A5A5A5;
-            --accent-color: #00ce68;
-            --pause-color: #6ad2ff;
-            --like-color: #fe2c55;
-            --pin-color: #face15;
-            --scroll-color: #00a6ed;
-            --vol-color: #7e59d0;
-            --restart-color: #f7ed80;
-            --error-color: #fe2c55;
-            --success-color: #00ce68;
-            --info-color: #FFFFFF;
-            --highlight: #222222;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Consolas', monospace;
-        }
-
-        body {
-            background-color: var(--bg-color);
-            color: var(--text-color);
-            padding: 10px;
-            margin: 0 auto;
-        }
-
-        .header {
-            text-align: center;
-        }
-
-        .title {
-            font-family: 'Unbounded', 'Segoe UI emoji';
-            font-size: 25px;
-            font-weight: bold;
-            margin-bottom: 5px;
-        }
-
-        .subtitle {
-            font-family: 'Unbounded', 'Segoe UI emoji';
-            color: var(--text-color-secondary);
-            margin-bottom: 15px;
-        }
-
-        .separator {
-            height: 1px;
-            background-color: var(--highlight);
-            margin: 10px 0;
-        }
-
-        .tabs {
-            display: flex;
-            gap: 2px;
-        }
-
-        .tab-btn {
-            font-family: 'Unbounded', 'Segoe UI emoji';
-            flex: 1;
-            padding: 5px 0;
-            background-color: var(--frame-bg);
-            border: none;
-            color: var(--text-color);
-            cursor: pointer;
-            font-size: 14px;
-            transition: all 0.3s;
-        }
-
-        .tab-btn:hover {
-            background-color: var(--highlight);
-        }
-
-        .tab-btn.active {
-            background-color: var(--highlight);
-            color: var(--accent-color);
-        }
-
-        .tab-content {
-            display: none;
-            flex-direction: column;
-            padding: 10px;
-            gap: 2px;
-            border: 1px solid var(--highlight);
-            border-radius: 0px;
-            margin-bottom: 15px;
-        }
-
-        .tab-content.active {
-            display: flex;
-        }
-
-        .section-title {
-            margin-bottom: 10px;
-            background: #111;
-            padding: 0px 10px;
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-            color: var(--text-color);
-        }
-
-        .btn {
-            font-family: 'Unbounded', 'Segoe UI emoji';
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 2px;
-            border: none;
-            border-radius: 0px;
-            background-color: var(--frame-bg);
-            color: var(--text-color);
-            cursor: pointer;
-            transition: all 0.3s;
-        }
-
-        .btn:hover {
-            background-color: var(--highlight);
-        }
-
-        .btn-pause {
-            color: var(--pause-color);
-        }
-
-        .btn-like {
-            color: var(--like-color);
-        }
-
-        .btn-pin {
-            color: var(--pin-color);
-        }
-
-        .btn-restart{
-            color: var(--restart-color);
-        }
-
-        .btn-scroll {
-            color: var(--scroll-color);
-        }
-        .btn-vol_plus, .btn_vol_min{
-            color: var(--vol-color);
-        }
-
-        .btn-accent {
-            color: var(--accent-color);
-        }
-
-        .btn-row {
-            display: flex;
-            gap: 2px;
-        }
-
-        .btn-row .btn {
-            flex: 1;
-        }
-
-        .input-group {
-            display: flex;
-            align-items: center;
-            margin-bottom: 5px;
-            justify-content: center;
-        }
-
-        .input-group label {
-            width: 230px;
-        }
-
-        .input-group input {
-            font-family: 'Unbounded', 'Segoe UI emoji';
-            width: 70px;
-            padding: 5px;
-            background-color: var(--frame-bg);
-            border: 1px solid var(--highlight);
-            color: var(--text-color);
-            margin-right: 5px;
-        }
-
-        .hotkey-item {
-            display: flex;
-            margin-bottom: 5px;
-        }
-
-        .hotkey-key {
-            width: 80px;
-            font-weight: bold;
-        }
-
-        .hotkey-desc {
-            flex: 1;
-        }
-
-        .log-container {
-            border: 1px solid var(--highlight);
-            border-radius: 5px;
-            padding: 10px;
-            margin-top: 15px;
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: var(--bg-color);
-        }
-
-        .log-title {
-            font-size: 16px;
-            font-weight: bold;
-            margin-bottom: 10px;
-        }
-
-        .log-entry {
-            font-size: 12px;
-            margin-bottom: 5px;
-            line-height: 1.4;
-        }
-
-        .log-timestamp {
-            color: var(--text-color-secondary);
-        }
-
-        .log-success {
-            color: var(--success-color);
-        }
-
-        .log-error {
-            color: var(--error-color);
-        }
-
-        .log-pause {
-            color: var(--pause-color);
-        }
-
-        .log-like {
-            color: var(--like-color);
-        }
-
-        .log-pin {
-            color: var(--pin-color);
-        }
-
-        .log-scroll {
-            color: var(--scroll-color);
-        }
-        .log-vol {
-            color: var(--vol-color);
-        }
-
-        .log-info {
-            color: var(--info-color);
-        }
-        .log-restart {
-            color: var(--restart-color);
-        }
-
-        .btn-exit {
-            margin-top: 15px;
-            background-color: var(--frame-bg);
-            color: var(--text-color);
-        }
-        #control-box{
-            border: #4d4d4d solid 1px;
-            padding: 0px 0px;
-        }
-        #control-box-btn{
-            padding: 0px 10px;
-        }
-        #system-box{
-            border: #4d4d4d solid 1px;
-            padding: 0px 0px;
-        }
-        #system-box-btn{
-            padding: 0px 10px;
-        }
-        .section-title{
-            padding: 2px 10px 5px 10px;
-        }
-        .tab-content{
-            height: 374px;
-            border-radius: 0;
-            gap: 10px;
-            width: 370px;
-            margin: 0;
-        }
-        .log-container{
-            width: 100%;
-            height: 100%;
-            max-height: unset;
-            margin: 0;
-            border-radius: 0px;
-        }
-        #box-grid{
-            gap: 5px;
-            height: 400px;
-            max-height: 400px;
-            display: flex;
-        }
-        #box-panel{
-            display: flex;
-            height: 100%;
-            flex-direction: column;
-        }
-        .log-entry > span,
-        #log-entries{
-            font-size: 14px;
-        }
-        .hotkey-item{
-            margin-bottom: 0px;
-        }
-        .subtitle{
-            margin: 0;
-        }
-        .separator {
-            height: 1px;
-            background-color: transparent;
-            margin: 10px 0;
-        }
-        .tab-btn{
-            font-size: 12px;
-            color: #a5a5a5;
-        }
-        .input-group input {
-            margin-left: 5px;
-            margin-right: 0px;
-        }
-        .toggle-switch {
-            position: relative;
-            display: inline-flex;
-            width: 130px;
-            height: 25px;
-            background-color: var(--frame-bg);
-            border-radius: 0px;
-            overflow: hidden;
-            border: 1px solid var(--highlight);
-        }
-
-        .toggle-switch input[type="radio"] {
-            display: none;
-        }
-
-        .toggle-label {
-            flex: 1;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-size: 12px;
-            z-index: 1;
-            transition: color 0.3s;
-            color: var(--text-color-secondary);
-        }
-
-        .toggle-switch input[type="radio"]:checked + .toggle-label {
-            color: #00ce68;
-            font-weight: bold;
-        }
-
-        .toggle-slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 50%;
-            height: 100%;
-            background-color: #222222;
-            transition: transform 0.3s;
-            border-radius: 0px;
-        }
-
-        #connection_wifi:checked ~ .toggle-slider {
-            transform: translateX(100%);
-        }
-        .hotkey-item {
-            cursor: pointer;
-            padding: 5px;
-            border-radius: 3px;
-        }
-
-        .hotkey-item:hover {
-            background-color: var(--highlight);
-        }
-
-        #hotkeyModal div {
-            border: 1px solid var(--highlight);
-        }
-        .log-entry > span, #log-entries{
-            white-space: nowrap !important;
-        }
-        ::-webkit-scrollbar {
-            width: 3px;
-            height: 3px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background-color: #ffffff;
-            border-radius: 0px;
-        }
-        ::-webkit-scrollbar-track {
-            background-color: #111111;
-        }
-    </style>
+    <link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    
+    <style>
+@import url('https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300..900;1,300..900');
+@import url('https://fonts.googleapis.com/css2?family=Unbounded:wght@200..900&display=swap');
+:root {
+    --bg-color: #000000;
+    --frame-bg: #111111;
+    --text-color: #FFFFFF;
+    --text-color-secondary: #A5A5A5;
+    --accent-color: #00ce68;
+    --pause-color: #6ad2ff;
+    --like-color: #fe2c55;
+    --pin-color: #face15;
+    --scroll-color: #00a6ed;
+    --vol-color: #7e59d0;
+    --restart-color: #f7ed80;
+    --error-color: #fe2c55;
+    --success-color: #00ce68;
+    --info-color: #FFFFFF;
+    --highlight: #222222;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Consolas', monospace;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-color);
+    padding: 10px;
+    margin: 0 auto;
+    animation: fadeIn 0.5s ease-in-out;
+}
+
+/* @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+} */
+
+.header {
+    text-align: center;
+    position: relative;
+    padding-top: 6px;
+}
+
+.header::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, #5b87ff 0%, #ff49a1 100%);
+    opacity: 0.2;
+    z-index: -1;
+    animation: gradientShift 3s ease-in-out infinite;
+}
+
+@keyframes gradientShift {
+    0%, 100% { background-position: 0% 50%; }
+    50% { background-position: 100% 50%; }
+}
+
+.title {
+    font-family: 'Unbounded', 'Segoe UI emoji';
+    font-size: 25px;
+    font-weight: bold;
+    margin-bottom: 5px;
+}
+
+.subtitle {
+    font-family: 'Unbounded', 'Segoe UI emoji';
+    color: var(--text-color-secondary);
+    margin-bottom: 15px;
+}
+
+.separator {
+    height: 1px;
+    background-color: var(--highlight);
+    margin: 10px 0;
+    animation: expandWidth 0.6s ease-out 0.4s both;
+}
+
+@keyframes expandWidth {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.tabs {
+    display: flex;
+    gap: 2px;
+}
+
+
+.tab-btn {
+    font-family: 'Unbounded', 'Segoe UI emoji';
+    flex: 1;
+    padding: 5px 0;
+    background-color: var(--frame-bg);
+    border: none;
+    color: var(--text-color);
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.tab-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.tab-btn:hover::before {
+    left: 100%;
+}
+
+.tab-btn:hover {
+    background-color: var(--highlight);
+    /* transform: translateY(-2px); */
+    /* box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3); */
+}
+
+.tab-btn.active {
+    background-color: var(--highlight);
+    color: var(--accent-color);
+    /* box-shadow: 0 0 10px rgba(0, 206, 104, 0.3); */
+}
+
+.tab-content {
+    display: none;
+    flex-direction: column;
+    padding: 10px;
+    gap: 2px;
+    border: 1px solid var(--highlight);
+    border-radius: 0px;
+    margin-bottom: 15px;
+}
+
+.tab-content.active {
+    display: flex;
+}
+
+.section-title {
+    margin-bottom: 10px;
+    background: #111;
+    padding: 0px 10px;
+    font-size: 16px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    color: var(--text-color);
+    animation: fadeIn 0.4s ease-out;
+}
+
+.btn {
+    font-family: 'Unbounded', 'Segoe UI emoji';
+    width: 100%;
+    padding: 10px;
+    margin-bottom: 2px;
+    border: none;
+    border-radius: 0px;
+    background-color: var(--frame-bg);
+    color: var(--text-color);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.6s, height 0.6s;
+}
+
+.btn:hover::before {
+    width: 500px;
+    height: 500px;
+}
+
+.btn:hover {
+    background-color: var(--highlight);
+    /* transform: translateY(-2px); */
+    /* box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4); */
+}
+
+.btn:active {
+    transform: translateY(0);
+    /* box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2); */
+}
+
+.btn-pause {
+    color: var(--pause-color);
+}
+
+.btn-like {
+    color: var(--like-color);
+}
+
+.btn-pin {
+    color: var(--pin-color);
+}
+
+.btn-restart {
+    color: var(--restart-color);
+}
+
+.btn-scroll {
+    color: var(--scroll-color);
+}
+
+.btn-vol_plus, .btn_vol_min {
+    color: var(--vol-color);
+}
+
+.btn-accent {
+    color: var(--accent-color);
+}
+
+.btn-row {
+    display: flex;
+    gap: 2px;
+    animation: fadeInUp 0.4s ease-out;
+}
+
+.btn-row .btn {
+    flex: 1;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 5px;
+    justify-content: center;
+    animation: fadeIn 0.3s ease-out;
+    background: #111111;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    /* padding-left: 10px; */
+}
+
+.input-group label {
+    width: 230px;
+    font-size: 12px;
+}
+
+.input-group input {
+    font-family: 'Unbounded', 'Segoe UI emoji';
+    width: 70px;
+    padding: 5px;
+    font-size: 12px;
+    background-color: var(--frame-bg);
+    border: 1px solid var(--highlight);
+    color: var(--text-color);
+    margin-right: 5px;
+    transition: all 0.3s ease;
+}
+
+*:focus {
+    outline-width: 0 !important;
+}
+
+.input-group input:focus {
+    border-color: var(--accent-color);
+    /* box-shadow: 0 0 5px rgba(0, 206, 104, 0.3); */
+    /* transform: scale(1.02); */
+}
+
+.hotkey-item {
+    display: flex;
+    margin-bottom: 5px;
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+    transition: all 0.3s ease;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.hotkey-item:hover {
+    background-color: var(--highlight);
+    /* transform: translateX(5px); */
+}
+
+.hotkey-key {
+    width: 80px;
+    font-weight: bold;
+}
+
+.hotkey-desc {
+    flex: 1;
+    font-size: 12px;
+    background: #111111;
+    height: 27px;
+    display: flex;
+    align-items: center;
+    padding-left: 10px;
+}
+.hotkey-key{
+    overflow: hidden;
+}
+
+.log-container {
+    border: 1px solid var(--highlight);
+    /* padding: 10px; */
+    margin-top: 15px;
+    max-height: 200px;
+    overflow-y: auto;
+    background-color: var(--bg-color);
+}
+
+.log-title {
+    font-size: 14px;
+    font-weight: bold;
+    font-size: 16px;
+    background: #111111;
+    margin-bottom: 8px;
+    padding: 2px 10px 5px 10px;
+}
+
+.log-entry {
+    font-size: 12px;
+    /* margin-bottom: 5px; */
+    /* line-height: 1; */
+    animation: fadeIn 0.2s ease-out;
+}
+
+.log-timestamp {
+    color: var(--text-color-secondary);
+}
+
+.log-success {
+    color: var(--success-color);
+}
+
+.log-error {
+    color: var(--error-color);
+}
+
+.log-pause {
+    color: var(--pause-color);
+}
+
+.log-like {
+    color: var(--like-color);
+}
+
+.log-pin {
+    color: var(--pin-color);
+}
+
+.log-scroll {
+    color: var(--scroll-color);
+}
+
+.log-vol {
+    color: var(--vol-color);
+}
+
+.log-info {
+    color: var(--info-color);
+}
+
+.log-restart {
+    color: var(--restart-color);
+}
+
+.btn-exit {
+    margin-top: 15px;
+    background-color: var(--frame-bg);
+    color: var(--text-color);
+}
+
+#control-box {
+    border: #4d4d4d solid 1px;
+    padding: 0px 0px;
+    animation: fadeIn 0.4s ease-out;
+}
+
+#control-box-btn {
+    padding: 0px 10px;
+}
+
+#system-box {
+    border: #4d4d4d solid 1px;
+    padding: 0px 0px;
+    animation: fadeIn 0.4s ease-out 0.2s both;
+}
+
+#system-box-btn {
+    padding: 0px 10px;
+}
+
+.section-title {
+    padding: 2px 10px 5px 10px;
+}
+
+.tab-content {
+    height: 100%;
+    border-radius: 0;
+    gap: 10px;
+    width: 370px;
+    margin: 0;
+}
+
+.log-container {
+    width: 100%;
+    height: 100%;
+    max-height: unset;
+    margin: 0;
+    border-radius: 0px;
+}
+
+#box-grid {
+    gap: 5px;
+    height: 430px;
+    max-height: 4090px;
+    display: flex;
+    animation: fadeInUp 0.6s ease-out 0.8s both;
+}
+
+#box-panel {
+    display: flex;
+    height: 100%;
+    flex-direction: column;
+}
+
+.log-entry > span, #log-entries {
+    font-size: 10px;
+}
+
+.hotkey-item {
+    margin-bottom: 0px;
+}
+
+.subtitle {
+    margin: 0;
+}
+
+.separator {
+    height: 1px;
+    background-color: transparent;
+    margin: 10px 0;
+}
+
+.tab-btn {
+    font-size: 12px;
+    color: #a5a5a5;
+}
+
+.input-group input {
+    margin-left: 5px;
+    margin-right: 0px;
+}
+
+.toggle-switch {
+    position: relative;
+    display: inline-flex;
+    width: 130px;
+    height: 27px;
+    background-color: var(--frame-bg);
+    border-radius: 0px;
+    overflow: hidden;
+    border: 1px solid var(--highlight);
+    transition: all 0.3s ease;
+}
+
+/* .toggle-switch:hover {
+    box-shadow: 0 0 10px rgba(255, 255, 255, 0.1);
+} */
+
+.toggle-switch input[type="radio"] {
+    display: none;
+}
+
+.toggle-label {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    font-size: 12px;
+    z-index: 1;
+    transition: color 0.3s ease;
+    color: var(--text-color-secondary);
+}
+
+.toggle-switch input[type="radio"]:checked + .toggle-label {
+    color: #00ce68;
+    font-weight: bold;
+}
+
+.toggle-slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 50%;
+    height: 100%;
+    background-color: #222222;
+    transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0px;
+}
+
+#connection_wifi:checked ~ .toggle-slider {
+    transform: translateX(100%);
+}
+
+.hotkey-item {
+    cursor: pointer;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.hotkey-item:hover {
+    background-color: var(--highlight);
+}
+
+#hotkeyModal div {
+    border: 1px solid var(--highlight);
+}
+#log-entries{
+    padding: 0px 10px;
+}
+
+.log-entry > span, #log-entries {
+    white-space: nowrap !important;
+}
+
+::-webkit-scrollbar {
+    width: 3px;
+    height: 3px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ffffff;
+    border-radius: 0px;
+    transition: background-color 0.3s ease;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background-color: var(--accent-color);
+}
+
+::-webkit-scrollbar-track {
+    background-color: #111111;
+}
+
+/* Additional motion design elements */
+.btn {
+    position: relative;
+}
+
+.btn::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::after {
+    left: 100%;
+}
+
+.tab-btn.active::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: var(--accent-color);
+    animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.5; }
+}
+
+.log-entry {
+    transition: all 0.3s ease;
+}
+
+/* .log-entry:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+    transform: translateX(5px);
+} */
+
+.input-group input {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input-group input:focus {
+    animation: inputFocus 0.3s ease;
+    outline-width: 0;
+}
+
+@keyframes inputFocus {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+    100% { transform: scale(1.02); }
+}
+
+
+
+#hotkeyModal > div {
+    animation: modalSlideIn 0.4s ease-out;
+}
+
+@keyframes modalSlideIn {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+</style>
+    <style id="dynamicStyles"></style>
     <div class="header" style="position: relative; padding-top: 6px;">
         <div style="
             position: absolute;
@@ -431,7 +665,7 @@
                 <button class="tab-btn" data-tab="settings">Настройки</button>
                 <button class="tab-btn" data-tab="hotkeys">Клавиатура</button>
             </div>
-    
+
             <!-- Вкладка управления -->
             <div id="control" class="tab-content active">
                 <div id="control-box">
@@ -446,7 +680,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div id="system-box">
                     <div class="section-title">Системные кнопки</div>
                     <div id="control-box-btn" style="margin-bottom: 8px;">
@@ -463,27 +697,72 @@
                     </div>
                 </div>
             </div>
-    
+
             <!-- Вкладка настроек -->
             <div id="settings" class="tab-content">
                 <div id="control-box">
                     <div class="section-title">Настройка координат</div>
                     <div id="control-box-btn">
                         <div class="input-group">
-                            <button class="btn btn-pause" style="margin: 0; margin-right: 5px; width: 40px; height: 28px; display: flex; padding: 0; justify-content: space-around; align-items: center;" onclick="performAction('pause')">⏯️</button>
-                            <label>Пауза (X Y):</label>
+                            <button class="btn btn-pause" style="
+                                background-color: #222222;
+                                margin: 0; 
+                                margin-right: 10px; 
+                                width: 44.69px; 
+                                height: 27px; 
+                                display: flex; 
+                                padding: 0; 
+                                justify-content: space-around; 
+                                align-items: center;
+                            " onclick="performAction('pause')">⏯️</button>
+                            <label style="color: var(--pause-color);">Пауза [X/Y]:</label>
                             <input placeholder="X" type="text" id="pause_x" value="{{ pause_coords[0] }}">
                             <input placeholder="Y" type="text" id="pause_y" value="{{ pause_coords[1] }}">
                         </div>
+    <style>
+        /* 1. Краткий метод: оборачиваем каждый символ в span */
+        .fixed-symbol {
+            display: inline-block;    /* Чтобы фон был ровно под размер символа */
+            font-size: 13px;          /* Принудительный размер */
+            width: 13px;              /* Фикс ширина */
+            height: 13px;             /* Фикс высота */
+            line-height: 13px;        /* Вертикальное выравнивание текста */
+            text-align: center;       /* Горизонтальное выравнивание */
+            background-color: red;    /* Красный фон */
+            color: white;             /* Цвет символа (для контраста, опционально) */
+            /* Бонус: скругление углов */
+            border-radius: 2px;
+        }
+    </style>
                         <div class="input-group">
-                            <button class="btn btn-like" style="margin: 0; margin-right: 5px; width: 40px; height: 28px; display: flex; padding: 0; justify-content: space-around; align-items: center;" onclick="performAction('like')">❤️</button>
-                            <label>Лайк (X Y):</label>
+                            <button class="btn btn-pause" style="
+                                background-color: #222222;
+                                margin: 0; 
+                                margin-right: 10px; 
+                                width: 44.69px; 
+                                height: 27px; 
+                                display: flex; 
+                                padding: 0; 
+                                justify-content: space-around; 
+                                align-items: center;
+                            " onclick="performAction('like')">❤️</button>
+                            <label style="color: var(--like-color);">Лайк [X/Y]:</label>
                             <input placeholder="X" type="text" id="like_x" value="{{ like_coords[0] }}">
                             <input placeholder="Y" type="text" id="like_y" value="{{ like_coords[1] }}">
                         </div>
                         <div class="input-group">
-                            <button class="btn btn-pin" style="margin: 0; margin-right: 5px; width: 40px; height: 28px; display: flex; padding: 0; justify-content: space-around; align-items: center;" onclick="performAction('pin')">⭐</button>
-                            <label>Избранное (X Y):</label>
+                            <button class="btn btn-pause" style="
+                                background-color: #222222;
+                                margin: 0; 
+                                margin-right: 10px; 
+                                width: 44.69px; 
+                                height: 27px; 
+                                display: flex; 
+                                padding: 0; 
+                                justify-content: space-around; 
+                                align-items: center;
+                            " onclick="performAction('pin')">⭐</button>
+                            <label style="color: var(--pin-color);">Избранное [X/Y]:</label>
                             <input placeholder="X" type="text" id="pin_x" value="{{ pin_coords[0] }}">
                             <input placeholder="Y" type="text" id="pin_y" value="{{ pin_coords[1] }}">
                         </div>
@@ -491,13 +770,57 @@
                     </div>
                 </div>
 
+    <script>
+        // Получаем все input элементы
+        const inputs = {
+            pin_x: document.getElementById('pin_x'),
+            pin_y: document.getElementById('pin_y'),
+            like_x: document.getElementById('like_x'),
+            like_y: document.getElementById('like_y'),
+            pause_x: document.getElementById('pause_x'),
+            pause_y: document.getElementById('pause_y')
+        };
+
+        // Получаем элемент стилей
+        const styleElement = document.getElementById('dynamicStyles');
+
+        // Функция для обновления CSS переменных
+        function updateCSSVariables() {
+            const styles = `
+                :root {
+                    --pause-cor-x: ${inputs.pause_x.value};
+                    --pause-cor-y: ${inputs.pause_y.value};
+                    --like-cor-x: ${inputs.like_x.value};
+                    --like-cor-y: ${inputs.like_y.value};
+                    --pin-cor-x: ${inputs.pin_x.value};
+                    --pin-cor-y: ${inputs.pin_y.value};
+                }
+            `;
+            
+            styleElement.textContent = styles;
+        }
+
+        // Добавляем обработчики событий на все input элементы
+        Object.values(inputs).forEach(input => {
+            input.addEventListener('input', updateCSSVariables);
+            input.addEventListener('change', updateCSSVariables);
+        });
+
+        // Инициализируем CSS переменные при загрузке
+        updateCSSVariables();
+    </script>
+
                 <div id="control-box">
                     <div class="section-title">Настройки подключения</div>
                     <div id="control-box-btn">
-                        <div class="input-group" style="justify-content: space-between; margin-bottom: 5px;">
-                            <label>ADB подключение через:</label>
+                        <div class="input-group" style="padding-left: 10px; justify-content: space-between; margin-bottom: 5px;">
+                            <label>FPS частота кадров:</label>
+                            <input placeholder="60" type="text" id="scrcpy_fps" value="{{ scrcpy_fps }}" style="flex: 1;">
+                        </div>
+                        <div class="input-group" style="padding-left: 10px; justify-content: space-between; margin-bottom: 5px;">
+                            <label>Тип ADB подключения:</label>
                             <div class="toggle-switch">
-                                <input type="radio" id="connection_usb" name="connection_type" value="usb" 
+                                <input type="radio" id="connection_usb" name="connection_type" value="usb"
                                     {% if connection_type == 'usb' %}checked{% endif %}>
                                 <label for="connection_usb" class="toggle-label">USB</label>
                                 <input type="radio" id="connection_wifi" name="connection_type" value="wifi"
@@ -506,7 +829,7 @@
                                 <span class="toggle-slider"></span>
                             </div>
                         </div>
-                        <div class="input-group ip-block-box" {% if connection_type == 'usb' %}style="display:none;"{% endif %}>
+                        <div class="input-group ip-block-box" style="padding-left: 10px;" {% if connection_type == 'usb' %}style="display:none;"{% endif %}>
                             <label>IP-адрес:</label>
                             <input placeholder="192.168.1.100" type="text" id="adb_ip" style='width: 150px;' value="{{ adb_ip }}" style="flex: 1;">
                             <input placeholder="5555" type="text" id="adb_port" value="{{ adb_port }}" style="flex: 1;">
@@ -515,7 +838,7 @@
                     </div>
                 </div>
             </div>
-    
+
             <!-- Вкладка горячих клавиш -->
             <div id="hotkeys" class="tab-content">
                 <div id="control-box">
@@ -523,7 +846,7 @@
                         .hotkey-key{
                             width: 130px;
                             font-family: 'Unbounded', 'Segoe UI emoji';
-                            font-size: 13px;
+                            font-size: 12px;
                             font-weight: 400;
                             padding: 5px;
                             background-color: var(--frame-bg);
@@ -534,6 +857,7 @@
                             justify-content: center;
                             align-items: center;
                             text-transform: uppercase;
+                            white-space: nowrap;
                         }
                         .hotkey-key:hover{
                             background: #222222;
@@ -551,7 +875,7 @@
                         .keylist{
                             flex-direction: column;
                             display: flex;
-                            gap: 2px;
+                            gap: 5px;
                         }
                         #pressedKey{
                             text-transform: uppercase;
@@ -561,27 +885,27 @@
                     <div id="control-box-btn" class="keylist" style="margin-bottom: 10px;">
                         <div class="hotkey-item" onclick="startHotkeyChange('pause')">
                             <div class="hotkey-desc">Пауза/плей:</div>
-                            <div class="hotkey-key" id="hotkey-pause">{{ hotkeys.pause }}</div>
+                            <div class="hotkey-key" id="hotkey-pause">{{hotkeys.pause}}</div>
                         </div>
                         <div class="hotkey-item" onclick="startHotkeyChange('like')">
                             <div class="hotkey-desc">Лайк:</div>
-                            <div class="hotkey-key" id="hotkey-like">{{ hotkeys.like }}</div>
+                            <div class="hotkey-key" id="hotkey-like">{{hotkeys.like}}</div>
                         </div>
                         <div class="hotkey-item" onclick="startHotkeyChange('pin')">
                             <div class="hotkey-desc">Избранное:</div>
-                            <div class="hotkey-key" id="hotkey-pin">{{ hotkeys.pin }}</div>
+                            <div class="hotkey-key" id="hotkey-pin">{{hotkeys.pin}}</div>
                         </div>
                         <div class="hotkey-item" onclick="startHotkeyChange('scroll_up')">
                             <div class="hotkey-desc">Следующее видео:</div>
-                            <div class="hotkey-key" id="hotkey-scroll-up">{{ hotkeys.scroll_up }}</div>
+                            <div class="hotkey-key" id="hotkey-scroll-up">{{hotkeys.scroll_up}}</div>
                         </div>
                         <div class="hotkey-item" onclick="startHotkeyChange('scroll_down')">
                             <div class="hotkey-desc">Предыдущее видео:</div>
-                            <div class="hotkey-key" id="hotkey-scroll-down">{{ hotkeys.scroll_down }}</div>
+                            <div class="hotkey-key" id="hotkey-scroll-down">{{hotkeys.scroll_down}}</div>
                         </div>
                     </div>
                 </div>
-    
+
                 <div id="control-box">
                     <div class="section-title">Как использовать?</div>
                     <div id="control-box-btn">
@@ -594,16 +918,189 @@
                 </div>
             </div>
         </div>
-
+<script>
+    const img = new Image();
+    img.onload = function() {
+        
+        // Создаем элемент style
+        const style = document.createElement('style');
+        
+        // Устанавливаем CSS с переменными
+        style.textContent = `
+            :root {
+                --screen_phone_h: ${this.height};
+                --screen_phone_w: ${this.width};
+            }
+        `;
+        
+        // Добавляем стили в head документа
+        document.head.appendChild(style);
+    }
+    img.src = 'http://127.0.0.1:56987/files/screen.png';
+</script>
+        <!-- <img src="http://127.0.0.1:56987/files/screen.png" alt="" style="border: #00a6ed 1px solid;"> -->
+        <div id="settings" class="tab-screen" style="position: relative; border: #222222 1px solid;" data-tab="settings">
+            <style>
+                .cord_pause{
+                    background: #6ad2ff; 
+                    color: #000000;
+                    height: 3px;
+                    width: 3px;
+                    border-radius: 100px;
+                    font-weight: 900;
+                    position: absolute; 
+                    font-size: 0px;
+                    left: calc((var(--pause-cor-x) / var(--screen_phone_w)) * 100%);
+                    top: calc((var(--pause-cor-y) / var(--screen_phone_h)) * 100%);
+                    transition: e all 0.5s ease-in-out;
+                }
+                .cord_like{
+                    background: #fe2c55;
+                    color: #000000;
+                    height: 3px;
+                    width: 3px;
+                    border-radius: 100px;
+                    font-weight: 900;
+                    position: absolute; 
+                    font-size: 0px;
+                    left: calc((var(--like-cor-x) / var(--screen_phone_w)) * 100%);
+                    top: calc((var(--like-cor-y) / var(--screen_phone_h)) * 100%);
+                }
+                .cord_pin{
+                    background: #face15; 
+                    color: #000000;
+                    height: 3px;
+                    width: 3px;
+                    border-radius: 100px;
+                    font-weight: 900;
+                    position: absolute; 
+                    font-size: 0px;
+                    left: calc((var(--pin-cor-x) / var(--screen_phone_w)) * 100%);
+                    top: calc((var(--pin-cor-y) / var(--screen_phone_h)) * 100%);
+                }
+                .cord_pause::after{
+                    content: '';
+                    background: #000; 
+                    color: #face15;
+                    height: 1px;
+                    width: 20px;
+                    transform: rotate(30deg);
+                    position: absolute; 
+                    font-size: 1px;
+                    right: 0px;
+                    bottom: 7px;
+                    margin-right: 1px;
+                }
+                .cord_like::after{
+                    content: '';
+                    background: #000; 
+                    color: #face15;
+                    height: 1px;
+                    width: 20px;
+                    transform: rotate(30deg);
+                    position: absolute; 
+                    font-size: 0px;
+                    right: 0px;
+                    bottom: 7px;
+                    margin-right: 1px;
+                }
+                .cord_pin::after{
+                    content: '';
+                    background: #000; 
+                    color: #face15;
+                    height: 1px;
+                    width: 20px;
+                    transform: rotate(30deg);
+                    position: absolute; 
+                    font-size: 0px;
+                    right: 0px;
+                    bottom: 7px;
+                    margin-right: 1px;
+                }
+                .cord_pause::before{
+                    content: 'ПАУЗА';
+                    font-family: 'Unbounded', 'Segoe UI emoji';
+                    background: #000; 
+                    color: #6ad2ff;
+                    font-weight: 600; 
+                    position: absolute; 
+                    font-size: 8px;
+                    padding: 2px 5px;
+                    right: 15px;
+                    bottom: 5px;
+                }
+                .cord_like::before{
+                    content: 'ЛАЙК';
+                    font-family: 'Unbounded', 'Segoe UI emoji';
+                    background: #000; 
+                    color: #fe2c55;
+                    font-weight: 600; 
+                    position: absolute; 
+                    font-size: 8px;
+                    padding: 2px 5px;
+                    right: 15px;
+                    bottom: 5px;
+                }
+                .cord_pin::before{
+                    content: 'ИЗБРАННОЕ';
+                    font-family: 'Unbounded', 'Segoe UI emoji';
+                    background: #000; 
+                    color: #face15;
+                    font-weight: 600; 
+                    position: absolute; 
+                    font-size: 8px;
+                    padding: 2px 5px;
+                    right: 15px;
+                    bottom: 5px;
+                }
+            </style>
+            <div class="cord_pause"></div>
+            <div class="cord_like"></div>
+            <div class="cord_pin"></div>
+            <img id="screen_image" style="height: 100%;" src="http://127.0.0.1:56987/files/screen.png">
+            <!-- <img style="height: 100%;" src="./screen.png"> -->
+            <script>
+                // Запускаем скрипт сразу после загрузки DOM
+document.addEventListener('DOMContentLoaded', function() {
+    const screenImage = document.getElementById('screen_image');
+    
+    // URL изображения
+    const imageUrl = 'http://127.0.0.1:56987/files/screen.png';
+    
+    // Функция для обновления изображения с временной меткой
+    function updateScreenImage() {
+        // Добавляем временную метку для предотвращения кэширования
+        const timestamp = new Date().getTime();
+        screenImage.src = `${imageUrl}?t=${timestamp}`;
+        
+        // Обработка ошибок загрузки изображения
+        screenImage.onerror = function() {
+            console.warn('Не удалось загрузить изображение', screenImage.src);
+        };
+    }
+    
+    // Обновляем изображение сразу при загрузке страницы
+    updateScreenImage();
+    
+    // Устанавливаем интервал обновления каждые 10 миллисекунд
+    const intervalId = setInterval(updateScreenImage, 2000);
+    
+    // Очистка интервала при закрытии страницы (опционально)
+    window.addEventListener('beforeunload', function() {
+        clearInterval(intervalId);
+    });
+});
+            </script>
+        </div>
         <!-- Логи действий -->
         <div class="log-container">
             <div class="log-title">Логи действий</div>
             <div id="log-entries">
                 {% for log in logs %}
-                    <div class="log-entry">
-                        <span class="log-timestamp">[{{ log.timestamp }}]</span>
-                        <span class="log-{{ log.tag }}">{{ log.message }}</span>
-                    </div>
+                <div class="log-entry">
+                    <span class="log-timestamp">[{{log.timestamp}}]</span>
+                    <span class="log-{{ log.tag }}">{{log.message}}</span>
+                </div>
                 {% endfor %}
             </div>
         </div>
@@ -614,25 +1111,25 @@
         // Цифры
         'Digit0': '0', 'Digit1': '1', 'Digit2': '2', 'Digit3': '3', 'Digit4': '4',
         'Digit5': '5', 'Digit6': '6', 'Digit7': '7', 'Digit8': '8', 'Digit9': '9',
-        
+
         // Numpad
         'Numpad0': 'num 0', 'Numpad1': 'num 1', 'Numpad2': 'num 2', 'Numpad3': 'num 3',
         'Numpad4': 'num 4', 'Numpad5': 'num 5', 'Numpad6': 'num 6', 'Numpad7': 'num 7',
         'Numpad8': 'num 8', 'Numpad9': 'num 9',
         'NumpadAdd': 'num +', 'NumpadSubtract': 'num -', 'NumpadMultiply': 'num *',
         'NumpadDivide': 'num /', 'NumpadEnter': 'num enter', 'NumpadDecimal': 'num .',
-        
+
         // Буквы
         'KeyA': 'a', 'KeyB': 'b', 'KeyC': 'c', 'KeyD': 'd', 'KeyE': 'e', 'KeyF': 'f',
         'KeyG': 'g', 'KeyH': 'h', 'KeyI': 'i', 'KeyJ': 'j', 'KeyK': 'k', 'KeyL': 'l',
         'KeyM': 'm', 'KeyN': 'n', 'KeyO': 'o', 'KeyP': 'p', 'KeyQ': 'q', 'KeyR': 'r',
         'KeyS': 's', 'KeyT': 't', 'KeyU': 'u', 'KeyV': 'v', 'KeyW': 'w', 'KeyX': 'x',
         'KeyY': 'y', 'KeyZ': 'z',
-        
+
         // Функциональные клавиши
         'F1': 'f1', 'F2': 'f2', 'F3': 'f3', 'F4': 'f4', 'F5': 'f5', 'F6': 'f6',
         'F7': 'f7', 'F8': 'f8', 'F9': 'f9', 'F10': 'f10', 'F11': 'f11', 'F12': 'f12',
-        
+
         // Специальные клавиши
         'Escape': 'esc', 'Tab': 'tab', 'CapsLock': 'caps lock', 'ShiftLeft': 'shift',
         'ShiftRight': 'shift', 'ControlLeft': 'ctrl', 'ControlRight': 'ctrl',
@@ -641,12 +1138,12 @@
         'Insert': 'insert', 'Home': 'home', 'End': 'end', 'PageUp': 'page up',
         'PageDown': 'page down', 'ArrowUp': 'up', 'ArrowDown': 'down', 'ArrowLeft': 'left',
         'ArrowRight': 'right',
-        
+
         // Символы
         'Minus': '-', 'Equal': '=', 'BracketLeft': '[', 'BracketRight': ']',
         'Backslash': '\\', 'Semicolon': ';', 'Quote': "'", 'Comma': ',',
         'Period': '.', 'Slash': '/', 'Backquote': '`',
-        
+
         // Модификаторы
         'NumLock': 'num lock', 'ScrollLock': 'scroll lock', 'Pause': 'pause',
         'PrintScreen': 'print screen', 'ContextMenu': 'menu'
@@ -689,24 +1186,29 @@
         const connectionType = document.querySelector('input[name="connection_type"]:checked').value;
         const adbIp = document.getElementById('adb_ip').value;
         const adbPort = document.getElementById('adb_port').value;
-        
+        const scrcpyFps = document.getElementById('scrcpy_fps').value;
+
         if (connectionType === "wifi") {
-            if (!adbIp || !adbPort) {
+            if (!adbIp || !adbPort || !scrcpyFps) {
                 alert("Для Wi-Fi подключения необходимо указать IP-адрес и порт");
                 return;
             }
-            
+
             if (!/^\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}$/.test(adbIp)) {
                 alert("Пожалуйста, введите корректный IP-адрес (например, 192.168.1.100)");
                 return;
             }
-            
+
             if (!/^\d+$/.test(adbPort)) {
                 alert("Порт должен содержать только цифры");
                 return;
             }
+            if (!/^\d+$/.test(scrcpyFps)) {
+                alert("Порт должен содержать только цифры");
+                return;
+            }
         }
-        
+
         const response = await fetch('/action', {
             method: 'POST',
             headers: {
@@ -716,46 +1218,17 @@
                 action: 'save_connection_settings',
                 connection_type: connectionType,
                 adb_ip: adbIp,
-                adb_port: adbPort
+                adb_port: adbPort,
+                scrcpy_fps: scrcpyFps,
             }),
         });
-        
+
         const data = await response.json();
         updateLogs(data.logs);
     }
 
-    // Переключение вкладок
-    document.querySelectorAll('.tab-btn').forEach(btn => {
-        btn.addEventListener('click', () => {
-            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-            document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-            
-            btn.classList.add('active');
-            const tabId = btn.getAttribute('data-tab');
-            document.getElementById(tabId).classList.add('active');
-        });
-    });
-
     // Выполнение действий
     async function performAction(action) {
-        // if (action === 'home' || action === 'back' || action === 'recent') {
-        //     const keyevent = {
-        //         'home': 'KEYCODE_HOME',
-        //         'back': 'KEYCODE_BACK',
-        //         'recent': 'KEYCODE_APP_SWITCH'
-        //     }[action];
-            
-        //     const response = await fetch('/action', {
-        //         method: 'POST',
-        //         headers: {
-        //             'Content-Type': 'application/json',
-        //         },
-        //         body: JSON.stringify({
-        //             action: 'adb_command',
-        //             command: `input keyevent ${keyevent}`
-        //         }),
-        //     });
-        // } else {
         const response = await fetch('/action', {
             method: 'POST',
             headers: {
@@ -763,7 +1236,7 @@
             },
             body: JSON.stringify({ action }),
         });
-        
+
         const data = await response.json();
         updateLogs(data.logs);
         // }
@@ -777,7 +1250,7 @@
         const like_y = document.getElementById('like_y').value;
         const pin_x = document.getElementById('pin_x').value;
         const pin_y = document.getElementById('pin_y').value;
-        
+
         const response = await fetch('/action', {
             method: 'POST',
             headers: {
@@ -790,7 +1263,7 @@
                 pin_x, pin_y
             }),
         });
-        
+
         const data = await response.json();
         updateLogs(data.logs);
     }
@@ -799,24 +1272,24 @@
     function updateLogs(logs) {
         const logContainer = document.getElementById('log-entries');
         logContainer.innerHTML = '';
-        
+
         logs.forEach(log => {
             const logEntry = document.createElement('div');
             logEntry.className = 'log-entry';
-            
+
             const timestamp = document.createElement('span');
             timestamp.className = 'log-timestamp';
             timestamp.textContent = `[${log.timestamp}] `;
-            
+
             const message = document.createElement('span');
             message.className = `log-${log.tag}`;
             message.textContent = log.message;
-            
+
             logEntry.appendChild(timestamp);
             logEntry.appendChild(message);
             logContainer.appendChild(logEntry);
         });
-        
+
         logContainer.scrollTop = logContainer.scrollHeight;
     }
 
@@ -831,14 +1304,14 @@
     document.addEventListener('DOMContentLoaded', function() {
         const connectionType = "{{ connection_type }}";
         document.getElementById(`connection_${connectionType}`).checked = true;
-        
+
         const wifiFields = document.querySelectorAll('.ip-block-box');
         if (connectionType === 'usb') {
             wifiFields.forEach(field => field.style.display = 'none');
         } else {
             wifiFields.forEach(field => field.style.display = 'flex');
         }
-        
+
         updateToggleSwitch();
     });
 
@@ -854,9 +1327,9 @@
     document.querySelectorAll('input[name="connection_type"]').forEach(radio => {
         radio.addEventListener('change', function() {
             const isWifi = this.value === 'wifi';
-            document.querySelector('.toggle-slider').style.transform = 
+            document.querySelector('.toggle-slider').style.transform =
                 isWifi ? 'translateX(100%)' : 'translateX(0%)';
-            document.querySelector('.ip-block-box').style.display = 
+            document.querySelector('.ip-block-box').style.display =
                 isWifi ? 'flex' : 'none';
         });
     });
@@ -871,7 +1344,7 @@
         document.getElementById('pressedKey').textContent = '...';
         document.getElementById('hotkeyModal').style.display = 'flex';
         pressedKey = null;
-        
+
         document.addEventListener('keydown', tempKeyHandler);
     }
 
@@ -916,7 +1389,7 @@
                 key: key
             }),
         });
-        
+
         const data = await response.json();
         if (data.success) {
             document.getElementById(`hotkey-${action}`).textContent = key;
@@ -929,10 +1402,24 @@
             color: #00ce68;
             font-size: 18px;
         }
+        #hotkeyModal{
+            display: none; 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0,0,0,0.7); 
+            z-index: 1000; 
+            justify-content: center; 
+            align-items: center;
+        }
     </style>
-    <div id="hotkeyModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.7); z-index: 1000; justify-content: center; align-items: center;">
+    <div id="hotkeyModal">
         <div style="background-color: var(--frame-bg); padding: 20px; border-radius: 5px; width: 400px;">
-            <div style="margin-bottom: 5px; font-size: 14px; padding: 10px; text-align: center;"><span id="currentAction"></span><br>Нажмите на любую кнопку на клавиатуре</div>
+            <div style="margin-bottom: 5px; font-size: 14px; padding: 10px; text-align: center;">
+                <span id="currentAction"></span><br>Нажмите на любую кнопку на клавиатуре
+            </div>
             <div id="pressedKey" style="font-size: 24px; text-align: center; margin: 10px 0; color: var(--accent-color);"></div>
             <div style="display: flex; justify-content: space-between;">
                 <button onclick="cancelHotkeyChange()" class="btn" style="flex: 1; margin-right: 0px; margin-bottom: 0px;">Отмена</button>
@@ -940,27 +1427,46 @@
             </div>
         </div>
     </div>
+    <style>
+        .tab-screen{
+            display: none;
+        }
+        .tab-screen.active{
+            display: block;
+        }
+    </style>
     <script>
         // Переключение вкладок
-document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => {
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
-        
-        btn.classList.add('active');
-        const tabId = btn.getAttribute('data-tab');
-        document.getElementById(tabId).classList.add('active');
-        
-        // Отправляем информацию о текущей вкладке на сервер
-        fetch('/tab_changed', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ tab: tabId })
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabId = btn.getAttribute('data-tab');
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(tab => tab.classList.remove('active'));
+                document.querySelectorAll('.tab-screen').forEach(tab => {
+                    if (tab.classList.contains('active')) {
+                        if (tabId !== 'settings') {
+                            tab.classList.remove('active');
+                        }
+                    } else {
+                        if (tabId == 'settings') {
+                            tab.classList.add('active');
+                        }
+                    }
+                });
+
+                btn.classList.add('active');
+                document.getElementById(tabId).classList.add('active');
+
+                // Отправляем информацию о текущей вкладке на сервер
+                fetch('/tab_changed', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ tab: tabId })
+                });
+            });
         });
-    });
-});
     </script>
 </body>
 </html>
